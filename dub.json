@@ -1,10 +1,10 @@
 {
-	"name": "z34d",
-	"authors": [
-		"Stefan Koch"
-	],
-	"dflags" : ["-version=Dynamic"],
-	"description": "A binding to the libz3 (SAT-Solver)",
-	"copyright": "Copyright © 2018, Stefan Koch",
-	"license": "Boost"
+    "name": "z34d",
+    "authors": [
+        "Stefan Koch"
+    ],
+    "dflags" : ["-version=Dynamic"],
+    "description": "A binding to the libz3 (SAT-Solver)",
+    "copyright": "Copyright © 2018, Stefan Koch",
+    "license": "Boost"
 }
