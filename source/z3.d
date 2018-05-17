@@ -19,6 +19,17 @@ version (Dynamic)
                         ` dlsym(handle, "` ~ m ~ `"));` ~ "\n";
                     loader ~= "if (" ~ m ~ " is null) puts(dlerror());\n";
                 }
+		else static if (mixin("is(z3h." ~ m ~ ")"))
+		{
+			vars ~= "alias " ~ m ~ " = z3h." ~ m ~ ";\n";
+		}
+		static if (mixin("is(z3h." ~ m ~ " == enum)"))
+		{
+			foreach(em;[__traits(allMembers, mixin("z3h." ~ m))])
+			{
+				vars ~= "enum " ~ em ~ " = z3h." ~ m ~ "." ~ em ~ ";\n";
+			}
+		}
             }
             return vars ~ loader ~ "}";
         } ());
