@@ -6,6 +6,7 @@ void main()
 {
 	display_version();
 	demorgan();
+    x_xor_o_eq_not_x();
 }
 
 
@@ -121,4 +122,44 @@ void demorgan()
     printf("%s\n", Z3_ast_to_string(ctx, conjecture));
     del_solver(ctx, s);
     Z3_del_context(ctx);
+}
+void x_xor_o_eq_not_x()
+{
+    auto cfg                = Z3_mk_config();
+    Z3_set_param_value(cfg, "proof", "true");
+    auto ctx                = Z3_mk_context(cfg);
+    Z3_del_config(cfg);
+    auto bool_sort          = Z3_mk_bool_sort(ctx);
+    auto symbol_x           = Z3_mk_string_symbol(ctx, "x");
+    auto symbol_y           = Z3_mk_string_symbol(ctx, "y");
+    auto x                  = Z3_mk_const(ctx, symbol_x, bool_sort);
+    //auto y                  = Z3_mk_const(ctx, symbol_y, int_sort);
+    auto ls                 = Z3_mk_xor(ctx, x, Z3_mk_true(ctx));
+    auto rs                 = Z3_mk_not(ctx, x);
+    auto conjecture         = Z3_mk_iff(ctx, ls, rs);
+
+    auto negated_conjecture = Z3_mk_not(ctx, conjecture);
+    printf("Conjecture: %s\n", Z3_ast_to_string(ctx, conjecture));
+
+    auto s = mk_solver(ctx);
+    Z3_solver_assert(ctx, s, negated_conjecture);
+
+    final switch (Z3_solver_check(ctx, s)) {
+        case Z3_L_FALSE:
+            /* The negated conjecture was unsatisfiable, hence the conjecture is valid */
+            printf("Conjecture is valid\n");
+            break;
+        case Z3_L_UNDEF:
+            /* Check returned undef */
+            printf("Undef\n");
+            break;
+        case Z3_L_TRUE:
+            /* The negated conjecture was satisfiable, hence the conjecture is not valid */
+            printf("Conjecture is not valid\n");
+            break;
+    }
+    //auto m = Z3_solver_get_proof(ctx, s);
+    del_solver(ctx, s);
+    Z3_del_context(ctx);
+
 }
