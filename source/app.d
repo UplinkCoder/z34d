@@ -123,20 +123,24 @@ void demorgan()
     del_solver(ctx, s);
     Z3_del_context(ctx);
 }
+
+
 void x_xor_o_eq_not_x()
 {
     auto cfg                = Z3_mk_config();
     Z3_set_param_value(cfg, "proof", "true");
     auto ctx                = Z3_mk_context(cfg);
     Z3_del_config(cfg);
-    auto bool_sort          = Z3_mk_bool_sort(ctx);
+    //auto bool_sort          = Z3_mk_bool_sort(ctx);
+    auto bv32_sort          = Z3_mk_bv_sort(ctx, 32);
     auto symbol_x           = Z3_mk_string_symbol(ctx, "x");
-    auto symbol_y           = Z3_mk_string_symbol(ctx, "y");
-    auto x                  = Z3_mk_const(ctx, symbol_x, bool_sort);
+    //auto symbol_y           = Z3_mk_string_symbol(ctx, "y");
+    auto x                  = Z3_mk_const(ctx, symbol_x, bv32_sort);
     //auto y                  = Z3_mk_const(ctx, symbol_y, int_sort);
-    auto ls                 = Z3_mk_xor(ctx, x, Z3_mk_true(ctx));
-    auto rs                 = Z3_mk_not(ctx, x);
-    auto conjecture         = Z3_mk_iff(ctx, ls, rs);
+    auto ls                 = Z3_mk_bvxor(ctx, x, Z3_mk_int(ctx, uint.max, bv32_sort));
+    // ls is all 1s
+    auto rs                 = Z3_mk_bvnot(ctx, x);
+    auto conjecture         = Z3_mk_eq(ctx, ls, rs);
 
     auto negated_conjecture = Z3_mk_not(ctx, conjecture);
     printf("Conjecture: %s\n", Z3_ast_to_string(ctx, conjecture));
@@ -155,10 +159,14 @@ void x_xor_o_eq_not_x()
             break;
         case Z3_L_TRUE:
             /* The negated conjecture was satisfiable, hence the conjecture is not valid */
+            //auto p = Z3_solver_get_proof(ctx, s);
+            auto m = Z3_solver_get_model(ctx, s);
+            printf("model: %s\n", Z3_model_to_string(ctx, m));
+            //printf("proof: %s\n", Z3_ast_to_string(ctx, p));
+
             printf("Conjecture is not valid\n");
             break;
     }
-    //auto m = Z3_solver_get_proof(ctx, s);
     del_solver(ctx, s);
     Z3_del_context(ctx);
 
